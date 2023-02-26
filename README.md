@@ -6,6 +6,14 @@ Whether you're looking for XSS, LFI, SQLi, or other vulnerabilities in your web 
 
 Say goodbye to tedious manual testing and hello to ParamAngler - your new go-to tool for comprehensive and efficient web application testing. Try ParamAngler today and start reeling in those bugs!
 
+# Instalation
+
+With go you can use this command
+
+```
+go install github.com/spyx/ParamAngler@latest
+```
+
 # Usage
 
 ```bash
