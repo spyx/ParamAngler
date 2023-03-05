@@ -23,6 +23,7 @@ func main() {
 	threads := flag.Int("t", 1, "Number of goroutines to use")
 	help := flag.Bool("h", false, "display usage information")
 	silent := flag.Bool("s", false, "hide banner")
+	proxied := flag.String("x","","set up proxy exampe: http://127.0.0.1:8080")
 	flag.Parse()
 
 	if !*silent {
@@ -43,6 +44,7 @@ func main() {
 		flag.PrintDefaults()
         return
     }
+
 
 	
 
@@ -94,23 +96,53 @@ func main() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			for url := range jobs {
-				resp, err := http.Get(url)
-				if err != nil {
-					panic(err)
-				}
-				defer resp.Body.Close()
+			for url_line := range jobs {
+				if *proxied != "" {
+					//fmt.Println(*proxied)
+					proxy, _ := url.Parse(*proxied)
+  					h := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxy)}}
+					resp, err := h.Get(url_line)
+					//resp, err := http.Get(url)
+					if err != nil {
+						panic(err)
+					}
+					defer resp.Body.Close()
 
-				body, err := ioutil.ReadAll(resp.Body)
-				if err != nil {
+					body, err := ioutil.ReadAll(resp.Body)
+					if err != nil {
 					panic(err)
-				}
+					}
 
-				if len(codes) == 0 || codes[resp.StatusCode] {
-					if *ms == "" || strings.Contains(string(body), *ms) {
-						results <- url
+					if len(codes) == 0 || codes[resp.StatusCode] {
+						if *ms == "" || strings.Contains(string(body), *ms) {
+							results <- url_line
+						}
+					}
+				} else {
+					//proxy, _ := url.Parse("http://127.0.0.1:8080")
+  					//h := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxy)}}
+					//resp, err := h.Get(url_line)
+					resp, err := http.Get(url_line)
+					if err != nil {
+						panic(err)
+					}
+
+					defer resp.Body.Close()
+
+					body, err := ioutil.ReadAll(resp.Body)
+					if err != nil {
+						panic(err)
+					}
+
+					if len(codes) == 0 || codes[resp.StatusCode] {
+						if *ms == "" || strings.Contains(string(body), *ms) {
+							results <- url_line
+						}
 					}
 				}
+				
+				
+				
 			}
 		}()
 	}

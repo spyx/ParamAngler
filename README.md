@@ -44,6 +44,8 @@ Options:
   -s    hide banner
   -t int
         Number of goroutines to use (default 1)
+  -x string
+        set up proxy exampe: http://127.0.0.1:8080
 
 ```
 
@@ -83,4 +85,6 @@ Similar as XSS example but now we are looking for root string on response body
 
 ## TODO
 
-- [ ] - Add support for proxy  
+- [x] - Add support for proxy  
+- [ ] - add encoding possibilities (base64, urlencode, double url encode)
+- [ ] - try to add cookie options 
